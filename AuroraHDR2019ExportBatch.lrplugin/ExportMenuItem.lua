@@ -4,14 +4,14 @@ local LrPathUtils = import("LrPathUtils")
 local LrFileUtils = import("LrFileUtils")
 local LrStringUtils = import("LrStringUtils")
 
-local LrMobdebug = import("LrMobdebug")
+g_AuroraHDR2019Batcher_keywords = nil
 
-g_AuroraHDR2019Batcher_keyrwords = nil
+function processBatchExport()
+  processActivePhotos()
+end
 
 function processActivePhotos()
-  LrMobdebug.on() 
-  LrMobdebug.start() 
-  
+
 	local catalog = LrApplication.activeCatalog()
 	local activePhoto = catalog:getTargetPhoto()
 
@@ -55,10 +55,10 @@ function collectPhotoCollections( photo )
 end
 
 function collectPhotoKeywords( photo )
-	if g_AuroraHDR2019Batcher_keyrwords == nil then
-		g_AuroraHDR2019Batcher_keyrwords = photo:getRawMetadata("keywords")
+	if g_AuroraHDR2019Batcher_keywords == nil then
+		g_AuroraHDR2019Batcher_keywords = photo:getRawMetadata("keywords")
 	else
-		g_AuroraHDR2019Batcher_keyrwords = intersectArrays(g_AuroraHDR2019Batcher_keyrwords, photo:getRawMetadata("keywords"))
+		g_AuroraHDR2019Batcher_keywords = intersectArrays(g_AuroraHDR2019Batcher_keywords, photo:getRawMetadata("keywords"))
 	end
 end
 

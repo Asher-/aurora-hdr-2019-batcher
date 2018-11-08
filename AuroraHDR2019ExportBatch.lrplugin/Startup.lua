@@ -94,43 +94,31 @@ function parseNode(node)
 	return result
 end
 
-if true then
-	LrTasks.startAsyncTask(function() 
-		loadPresets()
-	end)
-end
-
 --Import Section--------------------------------------------------------------------------
 
 function tryToImportFromFile(fileName)
 	if LrFileUtils.exists(fileName) then
 		LrTasks.startAsyncTask(function(context)
 			local catalog = LrApplication.activeCatalog()
---			local currentTime = LrDate.currentTime()
---			local formattedDate = LrDate.formatMediumDate(currentTime)
---			local formattedTime = LrDate.formatMediumTime(currentTime)
---			local newCollectionName = formattedDate.. " - " .. formattedTime
---			local collection = nil
---			local importedCollection = nil
 			local photo = nil;
 			catalog:withWriteAccessDo("0",
 				function(context)
 					photo = catalog:addPhoto(fileName, nil, nil)
 				  	if photo ~= nil then
-						if g_AuroraHDR2019Batcher_keyrwords ~= nil then
+						if g_AuroraHDR2019Batcher_keywords ~= nil then
 							local currentKeywords = photo:getRawMetadata("keywords")
-							if (numberOfElementsInArray(currentKeywords) == 0) and (numberOfElementsInArray(g_AuroraHDR2019Batcher_keyrwords) > 0) then
-								for k, v in pairs(g_AuroraHDR2019Batcher_keyrwords) do
+							if (numberOfElementsInArray(currentKeywords) == 0) and (numberOfElementsInArray(g_AuroraHDR2019Batcher_keywords) > 0) then
+								for k, v in pairs(g_AuroraHDR2019Batcher_keywords) do
 									photo:addKeyword(v)
 								end
 							end
-							g_AuroraHDR2019Batcher_keyrwords = nil
+							g_AuroraHDR2019Batcher_keywords = nil
 						end
 						if g_AuroraHDR2019Batcher_collections ~= nil then
 							for k, v in pairs(g_AuroraHDR2019Batcher_collections) do
 								v:addPhotos({photo})
 							end
-							g_AuroraHDR2019Batcher_collections = nil						
+							g_AuroraHDR2019Batcher_collections = nil
 						end
 					end
 				end
@@ -139,26 +127,14 @@ function tryToImportFromFile(fileName)
 				catalog:setSelectedPhotos(photo, {photo})
 			end
 
---			catalog:withWriteAccessDo("1",
---				function(context)
---				  collection = catalog:createCollectionSet("Aurora HDR 2019", nil, true)
---				end
---			)
---			catalog:withWriteAccessDo("2",
---				function(context)
---				  importedCollection = catalog:createCollection(newCollectionName, collection, true)
---				end
---			)
---			catalog:withWriteAccessDo("3",
---				function(context)
---				  importedCollection:addPhotos({photo})
---				end
---			)
---			catalog:setActiveSources(importedCollection)
-
 		end)
 	end
 end
+
+
+local LrMobdebug = import("LrMobdebug")
+LrMobdebug.on()
+LrMobdebug.start()
 
 local standardTempDirPath = LrPathUtils.getStandardFilePath('temp')
 local importFileName = LrPathUtils.child(standardTempDirPath, "ImportAuroraHDR2019")
@@ -178,4 +154,8 @@ LrTasks.startAsyncTask(function()
 		--sleep for 1 second
 		LrTasks.sleep(1)
   end
+end)
+
+LrTasks.startAsyncTask(function()
+  loadPresets()
 end)
