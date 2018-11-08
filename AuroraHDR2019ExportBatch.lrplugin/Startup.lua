@@ -96,6 +96,14 @@ end
 
 --Import Section--------------------------------------------------------------------------
 
+function numberOfElementsInArray( array )
+	local size = 0
+	for index, item in pairs(array) do
+		size = size + 1
+	end
+	return size
+end
+
 function tryToImportFromFile(fileName)
 	if LrFileUtils.exists(fileName) then
 		LrTasks.startAsyncTask(function(context)
@@ -131,21 +139,13 @@ function tryToImportFromFile(fileName)
 	end
 end
 
+--g_AuroraHDR2019Batcher_isPluginRunning is used since async task can be running even after plug-in shutdown
+g_AuroraHDR2019Batcher_isPluginRunning = 1
 
-local LrMobdebug = import("LrMobdebug")
-LrMobdebug.on()
-LrMobdebug.start()
-
-local standardTempDirPath = LrPathUtils.getStandardFilePath('temp')
-local importFileName = LrPathUtils.child(standardTempDirPath, "ImportAuroraHDR2019")
-
-tryToImportFromFile(importFileName)
-
---g_AuroraHDR2019_isPluginRunning is used since async task can be running even after plug-in shutdown
-g_AuroraHDR2019_isPluginRunning = 1
-
-LrTasks.startAsyncTask(function()
-	while g_AuroraHDR2019_isPluginRunning == 1 do
+function pluginEventLoop()
+	local standardTempDirPath = LrPathUtils.getStandardFilePath('temp')
+	local importFileName = LrPathUtils.child(standardTempDirPath, "ImportAuroraHDRBatcher2019")
+	while g_AuroraHDR2019Batcher_isPluginRunning == 1 do
 		if LrFileUtils.exists(importFileName) then
 			local photoPath = LrFileUtils.readFile(importFileName)
 			tryToImportFromFile(photoPath)
@@ -154,8 +154,9 @@ LrTasks.startAsyncTask(function()
 		--sleep for 1 second
 		LrTasks.sleep(1)
   end
-end)
+end
 
 LrTasks.startAsyncTask(function()
   loadPresets()
+	pluginEventLoop()
 end)

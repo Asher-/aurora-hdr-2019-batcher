@@ -1,1 +1,1 @@
-g_AuroraHDR2019_isPluginRunning = 0
+g_AuroraHDR2019Batcher_isPluginRunning = 0

@@ -4,6 +4,8 @@ local LrPathUtils = import("LrPathUtils")
 local LrFileUtils = import("LrFileUtils")
 local LrStringUtils = import("LrStringUtils")
 
+local LrMobdebug = import("LrMobdebug")
+
 g_AuroraHDR2019Batcher_keywords = nil
 
 function processBatchExport()
@@ -85,7 +87,7 @@ end
 
 function importTempFileName()
   local standardTempDirPath = LrPathUtils.getStandardFilePath('temp')
-  local importFileName = LrPathUtils.child(standardTempDirPath, "ImportAuroraHDR2019")
+  local importFileName = LrPathUtils.child(standardTempDirPath, "ImportAuroraHDRBatcher2019")
   return importFileName
 end
 
@@ -100,4 +102,4 @@ function prepareTempFile( importFileName )
 		return importFileName
 end
 
-LrTasks.startAsyncTask(processActivePhotos)
+LrTasks.startAsyncTask(processBatchExport)
