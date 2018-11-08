@@ -3,50 +3,58 @@ local LrTasks = import("LrTasks")
 local LrPathUtils = import("LrPathUtils")
 local LrFileUtils = import("LrFileUtils")
 local LrStringUtils = import("LrStringUtils")
+
+local LrMobdebug = import("LrMobdebug")
+
 g_AuroraHDR2019Batcher_keyrwords = nil
 
 function processActivePhotos()
-
+  LrMobdebug.on() 
+  LrMobdebug.start() 
+  
 	local catalog = LrApplication.activeCatalog()
-	local tPhoto = catalog:getTargetPhoto()
+	local activePhoto = catalog:getTargetPhoto()
 
-	if tPhoto
+	if activePhoto
 	then
-		local tPhotoPath = tPhoto.path
-		local importFileName = prepareTempFile();
+		initProcessActivePhotos()
 
-		local command = "/Library/Application\\ Support/MacPhun\\ Software/AuroraHDR2019/Plug-Ins/AuroraHDR2019 \"" .. tPhotoPath .. "\" -MPLightroomExtrasPluginResPath " .. importFileName
-		local tPhotos = catalog:getTargetPhotos()
-		g_AuroraHDR2019Batcher_collections = nil
-		if tPhotos
+		local photos = catalog:getTargetPhotos()
+		if photos
 		then
-			local size = 0
-			for index, photo in pairs(tPhotos) do
-				size = size + 1
-				processActivePhoto( photo )
-			end
-			if size > 1
+			if collectPhotoDetails( photos )
 			then
-				local bracket = ""
-				for index, photo in pairs(tPhotos) do
-					local photoPath = photo.path
-					bracket = bracket .. string.len(photoPath) .. ":" .. photoPath
-				end
-				if string.len(bracket) > 0 then
-					command = command .. " -MPHDRBracket " .. LrStringUtils.encodeBase64(bracket)
-				end
+				command = commandString( activePhoto, collectPhotoBracket( photos ) )
+        LrTasks.execute(command)
 			end
 		end
-		LrTasks.execute(command)
 	end
 end
 
-function processActivePhoto( photo )
+function initProcessActivePhotos()
+	prepareTempFile()
+	g_AuroraHDR2019Batcher_collections = nil
+end
+
+function collectPhotoDetails( photos )
+	local size = 0
+	for index, photo in pairs(photos) do
+		size = size + 1
+		collectPhotoCollections( photo )
+		collectPhotoKeywords( photo )
+	end
+	return size
+end
+
+function collectPhotoCollections( photo )
 	if g_AuroraHDR2019Batcher_collections == nil then
 		g_AuroraHDR2019Batcher_collections = photo:getContainedCollections()
 	else
 		g_AuroraHDR2019Batcher_collections = intersectArrays(g_AuroraHDR2019Batcher_collections, photo:getContainedCollections())
 	end
+end
+
+function collectPhotoKeywords( photo )
 	if g_AuroraHDR2019Batcher_keyrwords == nil then
 		g_AuroraHDR2019Batcher_keyrwords = photo:getRawMetadata("keywords")
 	else
@@ -54,9 +62,35 @@ function processActivePhoto( photo )
 	end
 end
 
+function collectPhotoBracket( photos )
+	local bracket = ""
+	for index, photo in pairs(photos) do
+		local photoPath = photo.path
+		bracket = bracket .. string.len(photoPath) .. ":" .. photoPath
+	end
+	return bracket
+end
+
+function commandString( activePhoto, bracket )
+	local command = ""
+  local activePhotoPath = activePhoto.path
+	if string.len(bracket) > 0 then
+    local importFileName = importTempFileName()
+		local base_command = "/Library/Application\\ Support/MacPhun\\ Software/AuroraHDR2019/Plug-Ins/AuroraHDR2019 \"" .. activePhotoPath .. "\" -MPLightroomExtrasPluginResPath " .. importFileName
+	  local bracketCommandString = "-MPHDRBracket " .. LrStringUtils.encodeBase64(bracket)
+		command = base_command .. " " .. bracketCommandString
+	end
+	return command
+end
+
+function importTempFileName()
+  local standardTempDirPath = LrPathUtils.getStandardFilePath('temp')
+  local importFileName = LrPathUtils.child(standardTempDirPath, "ImportAuroraHDR2019")
+  return importFileName
+end
+
 function prepareTempFile( importFileName )
-		local standardTempDirPath = LrPathUtils.getStandardFilePath('temp')
-		local importFileName = LrPathUtils.child(standardTempDirPath, "ImportAuroraHDR2019")
+    local importFileName = importTempFileName()
 
 		if LrFileUtils.exists(importFileName)
 		then
