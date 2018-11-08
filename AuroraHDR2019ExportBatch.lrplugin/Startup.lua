@@ -8,7 +8,7 @@ local LrDate = import 'LrDate'
 g_AuroraHDR2019_presets = {}
 g_AuroraHDR2019_presetGroups = {}
 g_AuroraHDR2019_presetsLoaded = false
-g_AuroraHDR2019_extrasCollections = nil
+g_AuroraHDR2019Batcher_collections = nil
 
 function loadPresets()
 	local standardTempDirPath = LrPathUtils.getStandardFilePath('temp')
@@ -117,20 +117,20 @@ function tryToImportFromFile(fileName)
 				function(context)
 					photo = catalog:addPhoto(fileName, nil, nil)
 				  	if photo ~= nil then
-						if g_AuroraHDR2019_extras_keyrwords ~= nil then
+						if g_AuroraHDR2019Batcher_keyrwords ~= nil then
 							local currentKeywords = photo:getRawMetadata("keywords")
-							if (numberOfElementsInArray(currentKeywords) == 0) and (numberOfElementsInArray(g_AuroraHDR2019_extras_keyrwords) > 0) then
-								for k, v in pairs(g_AuroraHDR2019_extras_keyrwords) do
+							if (numberOfElementsInArray(currentKeywords) == 0) and (numberOfElementsInArray(g_AuroraHDR2019Batcher_keyrwords) > 0) then
+								for k, v in pairs(g_AuroraHDR2019Batcher_keyrwords) do
 									photo:addKeyword(v)
 								end
 							end
-							g_AuroraHDR2019_extras_keyrwords = nil
+							g_AuroraHDR2019Batcher_keyrwords = nil
 						end
-						if g_AuroraHDR2019_extrasCollections ~= nil then
-							for k, v in pairs(g_AuroraHDR2019_extrasCollections) do
+						if g_AuroraHDR2019Batcher_collections ~= nil then
+							for k, v in pairs(g_AuroraHDR2019Batcher_collections) do
 								v:addPhotos({photo})
 							end
-							g_AuroraHDR2019_extrasCollections = nil						
+							g_AuroraHDR2019Batcher_collections = nil						
 						end
 					end
 				end

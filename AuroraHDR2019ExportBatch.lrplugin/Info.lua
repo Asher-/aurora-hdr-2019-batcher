@@ -22,5 +22,5 @@ return {
 	LrInitPlugin = "Startup.lua",
 	LrShutdownPlugin = "Shutdown.lua",
 
-	VERSION = { display = "1.0.1", }, -- Derived from AuroraHDR2019Plugin 1.0.1
+	VERSION = { display = "1.0.0", }, -- Derived from AuroraHDR2019Plugin 1.0.1
 }
